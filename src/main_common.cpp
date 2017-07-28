@@ -58,6 +58,7 @@ static char* my_strdup(const char* s) {
 int Calibrator::find_device(const char* pre_device, bool list_devices,
         XID& device_id, const char*& device_name, XYinfo& device_axys)
 {
+    DEBUG;
     bool pre_device_is_id = true;
     bool pre_device_is_sysfs = false;
     int found = 0;
@@ -68,6 +69,41 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
         exit(1);
     }
 
+    /* this variable will be used to store the "default" screen of the */
+    /* X server. usually an X server has only one screen, so we&#39;re only */
+    /* interested in that screen. */
+    int screen_num;
+    /* these variables will store the size of the screen, in pixels. */
+    int screen_width;
+    int screen_height;
+    /* this variable will be used to store the ID of the root window of our */
+    /* screen. Each screen always has a root window that covers the whole */
+    /* screen, and always exists. */
+    Window root_window;
+    /* these variables will be used to store the IDs of the black and white */
+    /* colors of the given screen. More on this will be explained later. */
+    unsigned long white_pixel;
+    unsigned long black_pixel;
+    /* check the number of the default screen for our X server. */
+    screen_num = DefaultScreen(display);
+    /* find the width of the default screen of our X server, in pixels. */
+    screen_width = DisplayWidth(display, screen_num);
+    /* find the height of the default screen of our X server, in pixels. */
+    screen_height = DisplayHeight(display, screen_num);
+    /* find the ID of the root window of the screen. */
+    root_window = RootWindow(display, screen_num);
+    /* find the value of a white pixel on this screen. */
+    white_pixel = WhitePixel(display, screen_num);
+    /* find the value of a black pixel on this screen. */
+    black_pixel = BlackPixel(display, screen_num);
+    DEBUG;
+    printf ("screen_num = %i \n", screen_num);
+    printf ("screen_width = %i \n", screen_width);
+    printf ("screen_height = %i \n", screen_height);
+    printf ("root_window = %i \n", root_window);
+    printf ("white_pixel = %i \n", white_pixel);
+    printf ("black_pixel = %i \n", black_pixel);
+
     int xi_opcode, event, error;
     if (!XQueryExtension(display, "XInputExtension", &xi_opcode, &event, &error)) {
         fprintf(stderr, "X Input extension not available.\n");
@@ -75,8 +111,13 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
     }
 
     // verbose, get Xi version
+    DEBUG;
+    printf ("verbose = %i \n", verbose);
     if (verbose) {
         XExtensionVersion *version = XGetExtensionVersion(display, INAME);
+        DEBUG;
+        printf("DEBUG: %s version is %i.%i\n",
+            INAME, version->major_version, version->minor_version);
 
         if (version && (version != (XExtensionVersion*) NoSuchExtension)) {
             printf("DEBUG: %s version is %i.%i\n",
@@ -85,7 +126,10 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
         }
     }
 
+    DEBUG;
+    printf ("pre_device = %s \n", pre_device);
     if (pre_device != NULL) {
+        DEBUG;
         // check whether the pre_device is an ID (only digits)
         int len = strlen(pre_device);
         for (int loop=0; loop<len; loop++) {
@@ -97,7 +141,9 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
     }
 
     std::string pre_device_sysfs;
+    DEBUG;
     if (pre_device != NULL && !pre_device_is_id) {
+        DEBUG;
         /* avoid overflow below - 10000 devices should be OK */
         if ( strlen(pre_device) < strlen("event") + 4 &&
              strncmp(pre_device, "event", strlen("event")) == 0 ) {
@@ -116,13 +162,25 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
         }
     }
 
+    DEBUG;
     if (verbose)
         printf("DEBUG: Skipping virtual master devices and devices without axis valuators.\n");
     int ndevices;
     XDeviceInfoPtr list, slist;
+    DEBUG;
     slist=list=(XDeviceInfoPtr) XListInputDevices (display, &ndevices);
+    DEBUG;
+    printf ("ndevices = %i \n", ndevices);
+    printf ("slist->id = %i \n", slist->id);
+    printf ("slist->name = %s \n", slist->name);
+    printf ("slist->num_classes = %i \n", slist->num_classes);
+    printf ("slist->type = %i \n", slist->type);
+    printf ("slist->use = %i \n", slist->use);
+
     for (int i=0; i<ndevices; i++, list++)
     {
+        printf ("-------------------------------------------------- \n");
+        DEBUG;
         if (list->use == IsXKeyboard || list->use == IsXPointer) // virtual master device
             continue;
 
@@ -140,6 +198,10 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
         XAnyClassPtr any = (XAnyClassPtr) (list->inputclassinfo);
         for (int j=0; j<list->num_classes; j++)
         {
+            printf ("    ------------------------------------------------\n");
+            DEBUG;
+            printf ("any->c_class = %i \n", any->c_class);
+            printf ("any->length = %i \n", any->length);
 
             if (any->c_class == ValuatorClass)
             {
@@ -166,6 +228,14 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
                     device_axys.y.min = ax[1].min_value;
                     device_axys.y.max = ax[1].max_value;
 
+                    DEBUG;
+                    printf ("device_id = %i \n", device_id);
+                    printf ("device_name = %s \n", device_name);
+                    printf ("device_axys.x.min = %i \n", device_axys.x.min);
+                    printf ("device_axys.x.max = %i \n", device_axys.x.max);
+                    printf ("device_axys.y.min = %i \n", device_axys.y.min);
+                    printf ("device_axys.y.max = %i \n", device_axys.y.max);
+
                     if (list_devices)
                         printf("Device \"%s\" id=%i\n", device_name, (int)device_id);
                 }
@@ -178,8 +248,11 @@ int Calibrator::find_device(const char* pre_device, bool list_devices,
              * a character pointer before being incremented.
              */
             any = (XAnyClassPtr) ((char *) any + any->length);
+            DEBUG;
+            printf ("    ------------------------------------------------- \n");
         }
-
+    DEBUG;
+    printf ("-------------------------------------------- \n");
     }
     XFreeDeviceList(slist);
     XCloseDisplay(display);
@@ -206,6 +279,7 @@ static void usage(char* cmd, unsigned thr_misclick)
 
 Calibrator* Calibrator::make_calibrator(int argc, char** argv)
 {
+    DEBUG;
     bool list_devices = false;
     bool fake = false;
     bool precalib = false;
@@ -334,6 +408,7 @@ Calibrator* Calibrator::make_calibrator(int argc, char** argv)
     const char* device_name = NULL;
     XYinfo      device_axys;
     if (fake) {
+        DEBUG;
         // Fake a calibratable device
         device_name = "Fake_device";
         device_axys = XYinfo(0,1000,0,1000);
@@ -342,9 +417,18 @@ Calibrator* Calibrator::make_calibrator(int argc, char** argv)
             printf("DEBUG: Faking device: %s\n", device_name);
         }
     } else {
+        DEBUG;
         // Find the right device
         int nr_found = find_device(pre_device, list_devices, device_id, device_name, device_axys);
 
+        DEBUG;
+        printf ("pre_device = %s \n", pre_device);
+        printf ("list_devices = %i \n", list_devices);
+        printf ("device_id = %i \n", device_id);
+        printf ("device_name = %s \n", device_name);
+        printf ("device_axys.x.min = %i, device_axys.x.max = %i \n", device_axys.x.min, device_axys.x.max);
+        printf ("device_axys.y.min = %i, device_axys.y.max = %i \n", device_axys.y.min, device_axys.y.max);
+        printf ("nr_found = %i \n", nr_found);
         if (list_devices) {
             // printed the list in find_device
             if (nr_found == 0)
@@ -369,6 +453,8 @@ Calibrator* Calibrator::make_calibrator(int argc, char** argv)
     }
 
     // override min/max XY from command line ?
+    DEBUG;
+    printf ("precalib = %i \n", precalib);
     if (precalib) {
         if (pre_axys.x.min != -1)
             device_axys.x.min = pre_axys.x.min;
@@ -378,7 +464,6 @@ Calibrator* Calibrator::make_calibrator(int argc, char** argv)
             device_axys.y.min = pre_axys.y.min;
         if (pre_axys.y.max != -1)
             device_axys.y.max = pre_axys.y.max;
-
         if (verbose) {
             printf("DEBUG: Setting precalibration: %i, %i, %i, %i\n",
                 device_axys.x.min, device_axys.x.max,
@@ -390,25 +475,52 @@ Calibrator* Calibrator::make_calibrator(int argc, char** argv)
     // Different device/driver, different ways to apply the calibration values
     try {
         // try Usbtouchscreen driver
+        DEBUG;
+        printf ("device_name = %s \n", device_name);
+        printf ("thr_misclick = %i \n", thr_misclick);
+        printf ("thr_doubleclick = %i \n", thr_doubleclick);
+        printf ("output_type = %d \n", output_type);
+        printf ("geometry = %s \n", geometry);
+        printf ("use_timeout = %i \n", use_timeout);
+        printf ("output_filename = %s \n", output_filename);
         return new CalibratorUsbtouchscreen(device_name, device_axys,
             thr_misclick, thr_doubleclick, output_type, geometry,
             use_timeout, output_filename);
 
     } catch(WrongCalibratorException& x) {
+        DEBUG;
         if (verbose)
             printf("DEBUG: Not usbtouchscreen calibrator: %s\n", x.what());
     }
 
     try {
         // next, try Evdev driver (with XID)
+        DEBUG;
+        printf ("device_name = %s \n", device_name);
+        printf ("thr_misclick = %i \n", thr_misclick);
+        printf ("thr_doubleclick = %i \n", thr_doubleclick);
+        printf ("output_type = %d \n", output_type);
+        printf ("geometry = %s \n", geometry);
+        printf ("use_timeout = %i \n", use_timeout);
+        printf ("output_filename = %s \n", output_filename);
         return new CalibratorEvdev(device_name, device_axys, device_id,
             thr_misclick, thr_doubleclick, output_type, geometry,
             use_timeout, output_filename);
 
     } catch(WrongCalibratorException& x) {
+        DEBUG;
         if (verbose)
             printf("DEBUG: Not evdev calibrator: %s\n", x.what());
     }
+
+    DEBUG;
+    printf ("device_name = %s \n", device_name);
+    printf ("thr_misclick = %i \n", thr_misclick);
+    printf ("thr_doubleclick = %i \n", thr_doubleclick);
+    printf ("output_type = %d \n", output_type);
+    printf ("geometry = %s \n", geometry);
+    printf ("use_timeout = %i \n", use_timeout);
+    printf ("output_filename = %s \n", output_filename);
 
     // lastly, presume a standard Xorg driver (evtouch, mutouch, ...)
     return new CalibratorXorgPrint(device_name, device_axys,

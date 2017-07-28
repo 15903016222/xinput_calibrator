@@ -1,0 +1,144 @@
+main_x11.cpp:main[29] 
+main_common.cpp:make_calibrator[282] 
+main_common.cpp:make_calibrator[420] 
+main_common.cpp:find_device[61] 
+main_common.cpp:find_device[99] 
+screen_num = 0 
+screen_width = 800 
+screen_height = 600 
+root_window = 72 
+white_pixel = 65535 
+black_pixel = 0 
+main_common.cpp:find_device[114] 
+verbose = 0 
+main_common.cpp:find_device[129] 
+pre_device = (null) 
+main_common.cpp:find_device[144] 
+main_common.cpp:find_device[165] 
+main_common.cpp:find_device[170] 
+main_common.cpp:find_device[172] 
+ndevices = 6 
+slist->id = 2 
+slist->name = Virtual core pointer 
+slist->num_classes = 2 
+slist->type = 0 
+slist->use = 0 
+-------------------------------------------------- 
+main_common.cpp:find_device[183] 
+-------------------------------------------------- 
+main_common.cpp:find_device[183] 
+-------------------------------------------------- 
+main_common.cpp:find_device[183] 
+    ------------------------------------------------
+main_common.cpp:find_device[202] 
+any->c_class = 1 
+any->length = 12 
+main_common.cpp:find_device[251] 
+    ------------------------------------------------- 
+    ------------------------------------------------
+main_common.cpp:find_device[202] 
+any->c_class = 2 
+any->length = 44 
+main_common.cpp:find_device[251] 
+    ------------------------------------------------- 
+main_common.cpp:find_device[254] 
+-------------------------------------------- 
+-------------------------------------------------- 
+main_common.cpp:find_device[183] 
+    ------------------------------------------------
+main_common.cpp:find_device[202] 
+any->c_class = 0 
+any->length = 16 
+main_common.cpp:find_device[251] 
+    ------------------------------------------------- 
+main_common.cpp:find_device[254] 
+-------------------------------------------- 
+-------------------------------------------------- 
+main_common.cpp:find_device[183] 
+    ------------------------------------------------
+main_common.cpp:find_device[202] 
+any->c_class = 1 
+any->length = 12 
+main_common.cpp:find_device[251] 
+    ------------------------------------------------- 
+    ------------------------------------------------
+main_common.cpp:find_device[202] 
+any->c_class = 2 
+any->length = 44 
+main_common.cpp:find_device[231] 
+device_id = 6 
+device_name = PenMount PM1310 
+device_axys.x.min = 0 
+device_axys.x.max = 2047 
+device_axys.y.min = 0 
+device_axys.y.max = 2047 
+main_common.cpp:find_device[251] 
+    ------------------------------------------------- 
+main_common.cpp:find_device[254] 
+-------------------------------------------- 
+-------------------------------------------------- 
+main_common.cpp:find_device[183] 
+    ------------------------------------------------
+main_common.cpp:find_device[202] 
+any->c_class = 0 
+any->length = 16 
+main_common.cpp:find_device[251] 
+    ------------------------------------------------- 
+main_common.cpp:find_device[254] 
+-------------------------------------------- 
+main_common.cpp:make_calibrator[424] 
+pre_device = (null) 
+list_devices = 0 
+device_id = 6 
+device_name = PenMount PM1310 
+device_axys.x.min = 0, device_axys.x.max = 2047 
+device_axys.y.min = 0, device_axys.y.max = 2047 
+nr_found = 1 
+main_common.cpp:make_calibrator[456] 
+precalib = 0 
+main_common.cpp:make_calibrator[478] 
+device_name = PenMount PM1310 
+thr_misclick = 15 
+thr_doubleclick = 7 
+output_type = 0 
+geometry = (null) 
+use_timeout = 1 
+output_filename = (null) 
+calibrator/Usbtouchscreen.cpp:CalibratorUsbtouchscreen[54] 
+device_name0 = PenMount PM1310 
+device_name = PenMount PM1310 
+main_common.cpp:make_calibrator[491] 
+main_common.cpp:make_calibrator[498] 
+device_name = PenMount PM1310 
+thr_misclick = 15 
+thr_doubleclick = 7 
+output_type = 0 
+geometry = (null) 
+use_timeout = 1 
+output_filename = (null) 
+calibrator/Evdev.cpp:CalibratorEvdev[54] 
+calibrator/Evdev.cpp:CalibratorEvdev[76] 
+calibrator/Evdev.cpp:CalibratorEvdev[81] 
+calibrator/Evdev.cpp:CalibratorEvdev[101] 
+calibrator/Evdev.cpp:CalibratorEvdev[120] 
+calibrator/Evdev.cpp:CalibratorEvdev[137] 
+calibrator/Evdev.cpp:CalibratorEvdev[144] 
+calibrator/Evdev.cpp:CalibratorEvdev[146] 
+calibrator/Evdev.cpp:CalibratorEvdev[155] 
+calibrator/Evdev.cpp:CalibratorEvdev[160] 
+calibrator/Evdev.cpp:CalibratorEvdev[162] 
+calibrator/Evdev.cpp:CalibratorEvdev[170] 
+Calibrating EVDEV driver for "PenMount PM1310" id=6
+	current calibration values (from XInput): min_x=39, max_x=2057 and min_y=71, max_y=2071
+main_x11.cpp:main[31] 
+
+Doing dynamic recalibration:
+	Setting calibration data: 39, 2056, 78, 2100
+	--> Making the calibration permanent <--
+  copy the snippet below into '/etc/X11/xorg.conf.d/99-calibration.conf' (/usr/share/X11/xorg.conf.d/ in some distro's)
+Section "InputClass"
+	Identifier	"calibration"
+	MatchProduct	"PenMount PM1310"
+	Option	"Calibration"	"39 2056 78 2100"
+	Option	"SwapAxes"	"0"
+EndSection

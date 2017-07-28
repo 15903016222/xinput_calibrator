@@ -33,6 +33,8 @@
 // XXX: we currently don't handle lines that are longer than this
 #define MAX_LINE_LEN 1024
 
+#define DEBUG (printf ("%s:%s[%d] \n", __FILE__, __func__, __LINE__))
+
 int xf86ScaleAxis(int Cx, int to_max, int to_min, int from_max, int from_min);
 float scaleAxis(float Cx, int to_max, int to_min, int from_max, int from_min);
 

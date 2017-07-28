@@ -51,6 +51,9 @@ static const char *p_swap_xy = "swap_xy";
 CalibratorUsbtouchscreen::CalibratorUsbtouchscreen(const char* const device_name0, const XYinfo& axys0, const int thr_misclick, const int thr_doubleclick, const OutputType output_type, const char* geometry, const bool use_timeout, const char* output_filename)
   : Calibrator(device_name0, axys0, thr_misclick, thr_doubleclick, output_type, geometry, use_timeout, output_filename)
 {
+    DEBUG;
+    printf ("device_name0 = %s \n", device_name0);
+    printf ("device_name = %s \n", device_name);
     if (strcmp(device_name, "Usbtouchscreen") != 0)
         throw WrongCalibratorException("Not a usbtouchscreen device");
 

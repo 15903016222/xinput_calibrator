@@ -26,7 +26,9 @@
 
 int main(int argc, char** argv)
 {
+    DEBUG;
     Calibrator* calibrator = Calibrator::make_calibrator(argc, argv);
+    DEBUG;
 
     GuiCalibratorX11::make_instance( calibrator );
 
